@@ -44,7 +44,7 @@ def load_image(image_file):
 def load_images(image_files):
     out = []
     for image_file in image_files:
-        image = load_image(image_file)
+        image = load_image(os.path.join(args.images_path, image_file))
         out.append(image)
     return out
 
@@ -67,36 +67,35 @@ def eval_model(args):
     r_prompt = "Explain why your answer is correct in great detail, referencing the provided image. Think step-by-step, and make sure to only draw conclusions from evidence present in the provided image."
     a_prompt = "What is the final answer to the question? Be short and concise."
     
-    def add_r_turn(conv, stance, frames, question: str, rationale: str | None = None):
-      s= "The stance of the image for the corresponding frames is:"
-      h= " ".join(stance)
-      sf=s+" "+h
-      f=" ".join(frames)
-      qs = f"{f} {sf} {question} {r_prompt}"
-      if getattr(model.config, "mm_use_im_start_end", False):
-          qs = (
-              qs
-              + "\n"
-              + DEFAULT_IM_START_TOKEN
-              + DEFAULT_IMAGE_TOKEN
-              + DEFAULT_IM_END_TOKEN
-          )
-      else:
-          qs = qs + "\n" + DEFAULT_IMAGE_TOKEN
-      conv.append_message(conv.roles[0], qs)
-      if rationale is not None:
-        #rationale = format_rationale(rationale)
-        conv.append_message(conv.roles[1], rationale + "\n")
-      else:
-        conv.append_message(conv.roles[1],None)
+    def add_r_turn(conv, question: str, rationale: str | None = None):
+        #s= "The stance of the image for the corresponding frames is:"
+        #h= " ".join(stance)
+        #sf=s+" "+h
+        #f=" ".join(frames)
+        qs = f"{question} {r_prompt}"
+        if getattr(model.config, "mm_use_im_start_end", False):
+            qs = (
+                qs
+                + "\n"
+                + DEFAULT_IM_START_TOKEN
+                + DEFAULT_IMAGE_TOKEN
+                + DEFAULT_IM_END_TOKEN)
+        else:
+            qs = qs + "\n" + DEFAULT_IMAGE_TOKEN
+        conv.append_message(conv.roles[0], qs)
+        if rationale is not None:
+            #rationale = format_rationale(rationale)
+            conv.append_message(conv.roles[1], rationale + "\n")
+        else:
+            conv.append_message(conv.roles[1],None)
         
     def add_a_turn(conv, answer: str | None = None):
-      qs = a_prompt
-      conv.append_message(conv.roles[0], qs)
-      if answer is not None:
-        conv.append_message(conv.roles[1],answer + "\n")
-      else:
-        conv.append_message(conv.roles[1],None)
+        qs = a_prompt
+        conv.append_message(conv.roles[0], qs)
+        if answer is not None:
+            conv.append_message(conv.roles[1],answer + "\n")
+        else:
+            conv.append_message(conv.roles[1],None)
     
     def run(conv,images):
         images = load_images(image_files)
@@ -131,10 +130,70 @@ def eval_model(args):
             continue
         ex = dataset[idx]
         image_path = ex["file_name"]                 #i think we have to load the actual image.
-        image = load_image(os.path.join(args.images_path, image_path))
         question = "Articulate the frames invoked by the image"              #same question for every ex. change according to output expected here.
-        image_tensor = image_processor.preprocess(
-            [d["image"] for d in ex_demos] + [image], return_tensors="pt"
-        )["pixel_values"]
-    
+        img_list=[d["image"] for d in ex_demos]]
+        img_list.append(image_path)
+        conv = conv_templates[args.conv_mode].copy()
+        for d in ex_demos:
+            add_r_turn(
+                conv,
+                question=question,
+                rationale=d["rationale"],            #changed near demos. 
+            )
+            add_a_turn(
+                conv,
+                answer=d["frame"],                   #change category wrt output.
+            )
 
+        final_conv = conv.copy()
+
+        add_r_turn(
+            conv,
+            question=question,
+            
+        )
+
+        rationale = run(conv, img_list)
+
+        add_r_turn(
+            final_conv,
+            question=question,
+            rationale=rationale,
+                                       
+        )
+        full_conv = final_conv.copy()
+        add_a_turn(final_conv)
+        pred = run(final_conv, images)
+        add_a_turn(full_conv, answer=pred)
+        
+        with open(answers_file, "a") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "id": ex["file_name"],
+                        "rationale": rationale,
+                        "pred": pred,
+                    }
+                )
+                + "\n"
+            )
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
+    parser.add_argument("--model-base", type=str, default=None)
+    parser.add_argument("--output", type=str, required=True)
+    parser.add_argument("--demos", type=str, required=True)
+    parser.add_argument("--images_path", type=str, required=True)
+    parser.add_argument("--num_demos", type=int, default=3)
+    parser.add_argument("--dataset", type=str)
+    parser.add_argument("--conv-mode", type=str, default=None)
+    parser.add_argument("--sep", type=str, default=",")
+    parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--top_p", type=float, default=None)
+    parser.add_argument("--num_beams", type=int, default=1)
+    parser.add_argument("--max_new_tokens", type=int, default=512)
+    
+    args = parser.parse_args()
+    
+    eval_model(args)
