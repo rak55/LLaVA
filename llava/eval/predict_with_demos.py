@@ -64,8 +64,8 @@ def eval_model(args):
             {"image":d_item["file_name"],"frame":d_item["frames"],"stance":d_item["stance"],"rationale":d_item["rationale"]})
     answers_file = os.path.expanduser(args.output)
     os.makedirs(os.path.dirname(answers_file), exist_ok=True)
-    r_prompt = "Explain why your answer is correct in great detail, referencing the provided image. Think step-by-step, and make sure to only draw conclusions from evidence present in the provided image."
-    a_prompt = "What is the final answer to the question? Be short and concise."
+    r_prompt = "Reason about whether the posting contains a frame (or more frames), or just states something factual or an experience."
+    a_prompt = "If the posting contains a frame, articulate that frame succinctly."
     
     def add_r_turn(conv, question: str, rationale: str | None = None):
         #s= "The stance of the image for the corresponding frames is:"
@@ -130,7 +130,8 @@ def eval_model(args):
             continue
         ex = dataset[idx]
         image_path = ex["file_name"]                 #i think we have to load the actual image.
-        question = "Articulate the frames invoked by the image"              #same question for every ex. change according to output expected here.
+        question = "You will be tasked with identifying and articulating misogyny framings on the social media postings. Each social media posting provided may or may not contain one or more frames of communication."
+        "List all the frames and the corresponding reasoning."
         img_list=[d["image"] for d in ex_demos]]
         img_list.append(image_path)
         conv = conv_templates[args.conv_mode].copy()
