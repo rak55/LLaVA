@@ -376,9 +376,7 @@ simple_conv_multimodal = Conversation(
     roles=("Human", "Assistant"),
     messages=(
         ("Human", "Hi! What is a Frame of Communication?"),
-        ("Assistant", "Frames of communication select particular aspects of an issue and make them salient in communicating a message. Social science stipulates that discourse almost inescapably involves
-        framing – a strategy of highlighting certain issues to promote a certain interpretation or attitude. It has been argued that 'to frame is to select some aspects of a perceived reality and make
-        them more salient in a communicating text, in such a way as to promote problem definition, causal interpretation, moral evaluation, and/or treatment recommendation.'\n"),
+        ("Assistant", "Frames of communication select particular aspects of an issue and make them salient in communicating a message. Social science stipulates that discourse almost inescapably involves framing – a strategy of highlighting certain issues to promote a certain interpretation or attitude. It has been argued that to frame is to select some aspects of a perceived reality and make them more salient in a communicating text, in such a way as to promote problem definition, causal interpretation, moral evaluation, and/or treatment recommendation.\n")
     ),
     offset=2,
     sep_style=SeparatorStyle.SINGLE,
@@ -396,7 +394,7 @@ conv_templates = {
     "mistral_instruct": conv_mistral_instruct,
     "chatml_direct": conv_chatml_direct,
     "mistral_direct": conv_chatml_direct,
-
+    "multimodal": simple_conv_multimodal,
     "plain": conv_llava_plain,
     "v0_plain": conv_llava_plain,
     "llava_v0": conv_llava_v0,
