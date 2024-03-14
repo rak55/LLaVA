@@ -375,8 +375,10 @@ simple_conv_multimodal = Conversation(
     "Follow the instructions carefully and explain your answers in detail.",
     roles=("Human", "Assistant"),
     messages=(
-        ("Human", "Hi!"),
-        ("Assistant", "Hi there! How can I help you today?\n"),
+        ("Human", "Hi! What is a Frame of Communication?"),
+        ("Assistant", "Frames of communication select particular aspects of an issue and make them salient in communicating a message. Social science stipulates that discourse almost inescapably involves
+        framing – a strategy of highlighting certain issues to promote a certain interpretation or attitude. It has been argued that 'to frame is to select some aspects of a perceived reality and make
+        them more salient in a communicating text, in such a way as to promote problem definition, causal interpretation, moral evaluation, and/or treatment recommendation.'\n"),
     ),
     offset=2,
     sep_style=SeparatorStyle.SINGLE,
