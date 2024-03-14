@@ -369,6 +369,21 @@ Answer the questions.""",
     sep="<|im_end|>",
 )
 
+simple_conv_multimodal = Conversation(
+    system= "You are a helpful language and vision assistant. You are able to understand the visual content that the user provides,"
+    "You are able to understand the visual content that the user provides and assist the user with a variety of tasks using natural language." 
+    "Follow the instructions carefully and explain your answers in detail.",
+    roles=("Human", "Assistant"),
+    messages=(
+        ("Human", "Hi!"),
+        ("Assistant", "Hi there! How can I help you today?\n"),
+    ),
+    offset=2,
+    sep_style=SeparatorStyle.SINGLE,
+    sep="###",
+)
+
+
 default_conversation = conv_vicuna_v1
 conv_templates = {
     "default": conv_vicuna_v0,
