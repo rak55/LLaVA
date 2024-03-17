@@ -61,7 +61,7 @@ def eval_model(args):
     ex_demos = []
     for d_item in demos:
         ex_demos.append(
-            {"image":d_item["file_name"],"frame":d_item["frames"],"stance":d_item["stance"],"rationale":d_item["rationale"]})
+            {"image":d_item["file_name"],"frame":d_item["frame"],"stance":d_item["stance"],"rationale":d_item["rationale"]})
     answers_file = os.path.expanduser(args.output)
     os.makedirs(os.path.dirname(answers_file), exist_ok=True)
     r_prompt = "Reason about whether the posting contains a frame (or more frames), or just states something factual or an experience."
