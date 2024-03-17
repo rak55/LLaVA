@@ -107,7 +107,7 @@ def eval_model(args):
         else:
             conv.append_message(conv.roles[1],None)
     
-    def run(conv,images):
+    def run(conv,image_files):
         images = load_images(image_files)
         image_sizes = [x.size for x in images]
         images_tensor = process_images(
