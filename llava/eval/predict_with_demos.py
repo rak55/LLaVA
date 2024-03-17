@@ -66,6 +66,14 @@ def eval_model(args):
             {"image":d_item["file_name"],"frame":d_item["frame"],"stance":d_item["stance"],"rationale":d_item["rationale"]})
     answers_file = os.path.expanduser(args.output)
     os.makedirs(os.path.dirname(answers_file), exist_ok=True)
+
+    seen_ids = set()
+    if os.path.exists(answers_file):
+        with open(answers_file, "r") as f:
+            for line in f:
+                line = json.loads(line)
+                seen_ids.add(line["file_name"])
+                
     r_prompt = "Reason about whether the posting contains a frame (or more frames), or just states something factual or an experience."
     a_prompt = "If the posting contains a frame, articulate that frame succinctly."
     
