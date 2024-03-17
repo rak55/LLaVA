@@ -22,6 +22,8 @@ from io import BytesIO
 import re
 import requests
 import json
+from tqdm import tqdm
+import torch
 
 #added old funcs.
 def read_jsonl(path):
