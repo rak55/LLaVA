@@ -16,7 +16,7 @@ from llava.mm_utils import (
     tokenizer_image_token,
     get_model_name_from_path,
 )
-
+import os
 from PIL import Image
 from io import BytesIO
 import re
