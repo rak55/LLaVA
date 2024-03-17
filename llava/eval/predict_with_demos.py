@@ -132,7 +132,7 @@ def eval_model(args):
         image_path = ex["file_name"]                 #i think we have to load the actual image.
         question = "You will be tasked with identifying and articulating misogyny framings on the social media postings. Each social media posting provided may or may not contain one or more frames of communication."
         "List all the frames and the corresponding reasoning."
-        img_list=[d["image"] for d in ex_demos]]
+        img_list=[d["image"] for d in ex_demos]
         img_list.append(image_path)
         conv = conv_templates[args.conv_mode].copy()
         for d in ex_demos:
