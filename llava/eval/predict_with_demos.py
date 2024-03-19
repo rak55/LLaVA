@@ -175,7 +175,7 @@ def eval_model(args):
         )
         full_conv = final_conv.copy()
         add_a_turn(final_conv)
-        pred = run(final_conv, images)
+        pred = run(final_conv, img_list)
         add_a_turn(full_conv, answer=pred)
         
         with open(answers_file, "a") as f:
