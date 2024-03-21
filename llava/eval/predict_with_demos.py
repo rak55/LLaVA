@@ -167,7 +167,7 @@ def eval_model(args):
             question=question,
             
         )
-
+        print(conv.get_prompt())
         rationale = run(conv, img_list)
 
         add_r_turn(
