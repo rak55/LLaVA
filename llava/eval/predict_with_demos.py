@@ -14,7 +14,7 @@ from llava.utils import disable_torch_init
 from llava.mm_utils import (
     process_images,
     tokenizer_image_token,
-    get_model_name_from_path,
+    get_model_name_from_path, KeywordsStoppingCriteria
 )
 import os
 from PIL import Image
@@ -121,6 +121,8 @@ def eval_model(args):
               .unsqueeze(0)
               .cuda()
         )
+        keywords = [conv.sep]
+        stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
         
         with torch.inference_mode():
             output_ids = model.generate(
@@ -133,6 +135,7 @@ def eval_model(args):
             num_beams=args.num_beams,
             max_new_tokens=args.max_new_tokens,
             use_cache=True,
+            stopping_criteria=[stopping_criteria]
             )
         outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
         
