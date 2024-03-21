@@ -80,7 +80,8 @@ def eval_model(args):
     elif "mpt" in model_name.lower():
         conv_mode = "mpt"
     else:
-        conv_mode = "llava_v0"
+        #conv_mode = "llava_v0"
+        conv_mode="multimodal"
 
     if args.conv_mode is not None and conv_mode != args.conv_mode:
         print(
