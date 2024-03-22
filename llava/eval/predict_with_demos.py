@@ -138,6 +138,7 @@ def eval_model(args):
             stopping_criteria=[stopping_criteria]
             )
         outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
+        return outputs
         
     for idx in tqdm(range(len(dataset))):
         if dataset[idx]["file_name"] in seen_ids:
