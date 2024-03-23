@@ -59,7 +59,7 @@ def eval_model(args):
 
     dataset = list(read_jsonl(args.dataset))
     demos = list(read_jsonl(args.demos))
-    demos = demos[: args.num_demos]
+    demos = demos[1:1]
     ex_demos = []
     for d_item in demos:
         ex_demos.append(
@@ -185,7 +185,7 @@ def eval_model(args):
         add_a_turn(final_conv)
         pred = run(final_conv, img_list)
         
-        if (pred==None and rationale==None):
+        if (pred is None and rationale is None):
             cnt+=1
             
         add_a_turn(full_conv, answer=pred)
