@@ -115,7 +115,11 @@ def eval_model(args):
               images,
               image_processor,
               model.config
-        ).to(model.device, dtype=torch.float16)
+        )
+        if (type(images_tensor) is list):
+            return
+        else:
+            images_tensor=images_tensor.to(model.device, dtype=torch.float16)
         
         input_ids = (tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt")
               .unsqueeze(0)
@@ -139,7 +143,7 @@ def eval_model(args):
             )
         outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
         return outputs
-        
+    cnt=0    
     for idx in tqdm(range(len(dataset))):
         if dataset[idx]["file_name"] in seen_ids:
             continue
@@ -180,6 +184,10 @@ def eval_model(args):
         full_conv = final_conv.copy()
         add_a_turn(final_conv)
         pred = run(final_conv, img_list)
+        
+        if (pred==None and rationale==None):
+            cnt+=1
+            
         add_a_turn(full_conv, answer=pred)
         
         with open(answers_file, "a") as f:
@@ -193,6 +201,7 @@ def eval_model(args):
                 )
                 + "\n"
             )
+        print(cnt)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
