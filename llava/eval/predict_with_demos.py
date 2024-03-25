@@ -138,8 +138,7 @@ def eval_model(args):
             top_p=args.top_p,
             num_beams=args.num_beams,
             max_new_tokens=args.max_new_tokens,
-            use_cache=True,
-            stopping_criteria=[stopping_criteria]
+            use_cache=True
             )
         outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
         return outputs
