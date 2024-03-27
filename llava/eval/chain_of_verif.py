@@ -26,6 +26,41 @@ import json
 from tqdm import tqdm
 import torch
 
+
+
+from langchain_community.llms import HuggingFaceHub
+from langchain.schema import (
+    HumanMessage,
+    SystemMessage,
+)
+from langchain_community.chat_models.huggingface import ChatHuggingFace
+
+llm = HuggingFaceHub(
+    repo_id="HuggingFaceH4/zephyr-7b-beta",
+    task="text-generation",
+    model_kwargs={
+        "max_new_tokens": 512,
+        "top_k": 30,
+        "temperature": 0.1,
+        "repetition_penalty": 1.03,
+    },
+)
+
+prompt= SystemMessage(content = "You are a helpful language and vision assistant. You are able to understand the visual content that the user provides and assist the user with a variety of tasks using natural language.")
+new_prompt=(prompt+HumanMessage(content="Hi! What is a Frame of Communication?")+AIMessage(content="Frames of communication select particular aspects of an issue and make them salient in communicating a message. Social science stipulates that discourse almost inescapably involves framing – a strategy of highlighting certain issues to promote a certain interpretation or attitude. It has been argued that to frame is to select some aspects of a perceived reality and make them more salient in a communicating text, in such a way as to promote problem definition, causal interpretation, moral evaluation, and/or treatment recommendation.\n"))
+
+
+messages = [
+    SystemMessage(content="You're a helpful assistant"),
+    HumanMessage(
+        content="What happens when an unstoppable force meets an immovable object?"
+    ),
+]
+
+chat_model = ChatHuggingFace(llm=llm)
+res = chat_model.invoke(messages)
+print(res.content)
+
 #added old funcs.
 def read_jsonl(path):
     with open(path, "r") as f:
@@ -202,9 +237,6 @@ def eval_model(args):
                 + "\n"
             )
         print(cnt)
-
-prompt= SystemMessage(content = "You are a helpful language and vision assistant. You are able to understand the visual content that the user provides and assist the user with a variety of tasks using natural language.")
-new_prompt=(prompt+HumanMessage(content="Hi! What is a Frame of Communication?")+AIMessage(content="Frames of communication select particular aspects of an issue and make them salient in communicating a message. Social science stipulates that discourse almost inescapably involves framing – a strategy of highlighting certain issues to promote a certain interpretation or attitude. It has been argued that to frame is to select some aspects of a perceived reality and make them more salient in a communicating text, in such a way as to promote problem definition, causal interpretation, moral evaluation, and/or treatment recommendation.\n"))
 
 
 if __name__ == "__main__":
