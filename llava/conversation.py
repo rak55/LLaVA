@@ -370,8 +370,7 @@ Answer the questions.""",
 )
 
 simple_conv_multimodal = Conversation(
-    system= "You are a helpful language and vision assistant. You are able to understand the visual content that the user provides,"
-    "You are able to understand the visual content that the user provides and assist the user with a variety of tasks using natural language." 
+    system= "You are a helpful language and vision assistant. You are able to understand the visual content that the user provides and assist the user with a variety of tasks using natural language." 
     "Follow the instructions carefully and explain your answers in detail.",
     roles=("Human", "Assistant"),
     messages=(
