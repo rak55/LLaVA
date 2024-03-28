@@ -30,10 +30,15 @@ import torch
 
 from langchain_community.llms import HuggingFaceHub
 from langchain.schema import (
-    HumanMessage,
-    SystemMessage,
+    HumanMessage, SystemMessage, AIMessage
 )
 from langchain_community.chat_models.huggingface import ChatHuggingFace
+from langchain.chains.base import Chain
+from langchain.prompts.base import BasePromptTemplate
+import langchain
+from langchain.chains.llm import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.chains import SequentialChain
 
 llm = HuggingFaceHub(
     repo_id="HuggingFaceH4/zephyr-7b-beta",
