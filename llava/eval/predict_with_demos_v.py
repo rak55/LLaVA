@@ -62,7 +62,7 @@ def eval_model(args):
     demos = demos[:args.num_demos]
     ex_demos = []
     for d_item in demos:
-        ex_demos.append(-
+        ex_demos.append(
             {"image":d_item["file_name"],"frame":d_item["frame"],"rationale":d_item["rationale"],"problems":d_item["problems"]})
     answers_file = os.path.expanduser(args.output)
     os.makedirs(os.path.dirname(answers_file), exist_ok=True)
