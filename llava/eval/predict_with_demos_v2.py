@@ -77,7 +77,7 @@ def eval_model(args):
     r_prompt = "Reason about whether the posting contains a frame (or more frames), or just states something factual or an experience."
     a_prompt = "If the posting contains a frame, articulate that frame succinctly."
     
-    def add_r_turn(conv, question: str, rationale: str | None = None):
+    def add_r_turn(conv, question: str, rationale: str | None = None, flag: bool):
         #s= "The stance of the image for the corresponding frames is:"
         #h= " ".join(stance)
         #sf=s+" "+h
@@ -149,10 +149,10 @@ def eval_model(args):
         ex = dataset[idx]
         image_path = ex["file_name"]                 #i think we have to load the actual image.
         question = "You will be tasked with identifying and articulating misogyny framings on the social media postings. Each social media posting provided may or may not contain one or more frames of communication."
-        "List all the frames and the corresponding reasoning."
-        img_list=[d["image"] for d in ex_demos]
-        img_list.append(image_path)
+        img_list=[image_path]
+        #img_list.append(image_path)
         conv = conv_templates[args.conv_mode].copy()
+        '''
         for d in ex_demos:
             add_r_turn(
                 conv,
@@ -163,6 +163,7 @@ def eval_model(args):
                 conv,
                 answer=d["frame"],                   #change category wrt output.
             )
+        '''
 
         final_conv = conv.copy()
 
@@ -171,7 +172,7 @@ def eval_model(args):
             question=question,
             
         )
-        print(conv.get_prompt())
+        #print(conv.get_prompt())
         rationale = run(conv, img_list)
 
         add_r_turn(
