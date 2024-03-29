@@ -59,7 +59,7 @@ def eval_model(args):
 
     dataset = list(read_jsonl(args.dataset))
     demos = list(read_jsonl(args.demos))
-    demos = demos[1:args.num_demos]
+    demos = demos[1:args.num_demos+1]
     ex_demos = []
     for d_item in demos:
         ex_demos.append(
