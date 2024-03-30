@@ -193,8 +193,9 @@ def eval_model(args):
             question=question,
             
         )
-        #print(conv.get_prompt())
+        print(conv.get_prompt())
         rationale = run(conv, img_list)
+        print(rationale)
         for d in ex_demos:
             add_d_turn(
                 final_conv,
@@ -216,7 +217,11 @@ def eval_model(args):
             question=question_rc,
             
         )
+        print("running rationale second time")
+        print(final_conv.get_prompt())
+        
         rationale = run(final_conv, demo_img_list)
+        print(rationale)
         add_r_turn(
             full_conv,
             question=question,
