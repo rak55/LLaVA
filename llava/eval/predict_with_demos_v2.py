@@ -129,11 +129,12 @@ def eval_model(args):
             
         if flag:
             if getattr(model.config, "mm_use_im_start_end", False):
-                qs = qs
-                    + "\n"
-                    + DEFAULT_IM_START_TOKEN
-                    + DEFAULT_IMAGE_TOKEN
-                    + DEFAULT_IM_END_TOKEN)
+                qs = (
+                     qs
+                     + "\n"
+                     + DEFAULT_IM_START_TOKEN
+                     + DEFAULT_IMAGE_TOKEN
+                     + DEFAULT_IM_END_TOKEN)
             else:
                 qs = qs + "\n" + DEFAULT_IMAGE_TOKEN
             
