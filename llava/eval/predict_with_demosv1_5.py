@@ -187,8 +187,9 @@ def load_model(model_name):
 
 def eval_model(args):
     disable_torch_init()
-    model_name = get_model_name_from_path(args.model_path)
-    tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name,load_4bit=args.load_4bit)
+    model_name = os.path.expanduser(args.model)
+    patch_config(model_name)
+    tokenizer, model, image_processor, image_token_len = load_pretrained_model(model_name,load_4bit=args.load_4bit)
 
     dataset = list(read_jsonl(args.dataset))
     demos = list(read_jsonl(args.demos))
@@ -217,13 +218,12 @@ def eval_model(args):
                 qs
                 + "\n"
                 + DEFAULT_IM_START_TOKEN
-                + DEFAULT_IMAGE_TOKEN
+                + DEFAULT_IMAGE_PATCH_TOKEN * image_token_len
                 + DEFAULT_IM_END_TOKEN)
         else:
-            qs = qs + "\n" + DEFAULT_IMAGE_TOKEN
+            qs = qs + "\n" + DEFAULT_IMAGE_PATCH_TOKEN * image_token_len
         conv.append_message(conv.roles[0], qs)
         if rationale is not None:
-            #rationale = format_rationale(rationale)
             conv.append_message(conv.roles[1], rationale + "\n")
         else:
             conv.append_message(conv.roles[1],None)
@@ -238,7 +238,8 @@ def eval_model(args):
     
     def run(conv,images):
         prompt = conv.get_prompt()
-        input_ids = (tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors="pt").unsqueeze(0).cuda())
+        inputs = tokenizer([prompt])
+        input_ids = torch.as_tensor(inputs.input_ids).cuda()
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
         keywords = [stop_str]
         stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
@@ -259,10 +260,13 @@ def eval_model(args):
         if n_diff_input_output > 0:
           print(f'[Warning] {n_diff_input_output} output_ids are not the same as the input_ids')
         outputs = tokenizer.batch_decode(output_ids[:, input_token_len:], skip_special_tokens=True)[0]
-        outputs = outputs.strip()
-        if outputs.endswith(stop_str):
-          outputs = outputs[:-len(stop_str)]
-        outputs = outputs.strip()
+        try:
+            index = outputs.index(conv.sep)
+        except ValueError:
+            outputs += conv.sep
+            index = outputs.index(conv.sep)
+
+        outputs = outputs[:index].strip()
         return outputs
        
     for idx in tqdm(range(len(dataset))):
@@ -323,8 +327,7 @@ def eval_model(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
-    parser.add_argument("--model-base", type=str, default=None)
+    parser.add_argument("--model", type=str, required=True)
     parser.add_argument("--output", type=str, required=True)
     parser.add_argument("--demos", type=str, required=True)
     parser.add_argument("--images_path", type=str, required=True)
