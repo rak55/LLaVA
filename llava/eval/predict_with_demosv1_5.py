@@ -109,8 +109,6 @@ def load_pretrained_model(
     model = LlavaLlamaForCausalLM.from_pretrained(
         model_name, **kwargs
     )                                                                            #took out low_mem_usga=False.
-
-            [DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKE
     mm_use_im_start_end = getattr(model.config, "mm_use_im_start_end", False)
     tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
     if mm_use_im_start_end:
