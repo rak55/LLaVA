@@ -1,16 +1,10 @@
 import argparse
 from transformers import AutoTokenizer, AutoConfig
-from llava.constants import (
-    IMAGE_TOKEN_INDEX,
-    DEFAULT_IMAGE_TOKEN,
-    DEFAULT_IM_START_TOKEN,
-    DEFAULT_IM_END_TOKEN,
-)
+from transformers import CLIPImageProcessor, CLIPVisionModel
+from transformers import StoppingCriteria, BitsAndBytesConfig
 
 from llava.conversation import conv_templates, SeparatorStyle
-from llava.model.builder import load_pretrained_model
 from llava.utils import disable_torch_init
-from llava.mm_utils import tokenizer_image_token, get_model_name_from_path, KeywordsStoppingCriteria
 
 import os
 from PIL import Image
@@ -20,6 +14,35 @@ import requests
 import json
 from tqdm import tqdm
 import torch
+from llava import LlavaLlamaForCausalLM
+
+DEFAULT_IMAGE_TOKEN = "<image>"
+DEFAULT_IMAGE_PATCH_TOKEN = "<im_patch>"
+DEFAULT_IM_START_TOKEN = "<im_start>"
+DEFAULT_IM_END_TOKEN = "<im_end>"
+
+# new stopping implementation
+class KeywordsStoppingCriteria(StoppingCriteria):
+    def __init__(self, keywords, tokenizer, input_ids):
+        self.keywords = keywords
+        self.tokenizer = tokenizer
+        self.start_len = None
+        self.input_ids = input_ids
+
+    def __call__(
+        self, output_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs
+    ) -> bool:
+        if self.start_len is None:
+            self.start_len = self.input_ids.shape[1]
+        else:
+            outputs = self.tokenizer.batch_decode(
+                output_ids[:, self.start_len :], skip_special_tokens=True
+            )[0]
+            for keyword in self.keywords:
+                if keyword in outputs:
+                    return True
+        return False
+
 
 #added old funcs.
 def read_jsonl(path):
@@ -37,6 +60,22 @@ def load_image(image_file):
     else:
         image = Image.open(image_file).convert("RGB")
     return image
+
+def patch_config(config):
+    patch_dict = {
+        "use_mm_proj": True,
+        "mm_vision_tower": "openai/clip-vit-large-patch14",
+        "mm_hidden_size": 1024,
+    }
+
+    cfg = AutoConfig.from_pretrained(config)
+    if not hasattr(cfg, "mm_vision_tower"):
+        print(
+            f"`mm_vision_tower` not found in `{config}`, applying patch and save to disk."
+        )
+        for k, v in patch_dict.items():
+            setattr(cfg, k, v)
+        cfg.save_pretrained(config)
 
 def eval_model(args):
     disable_torch_init()
