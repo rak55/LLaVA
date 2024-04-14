@@ -114,7 +114,7 @@ def load_pretrained_model(
     if mm_use_im_start_end:
         tokenizer.add_tokens(
             [DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN], special_tokens=True)
-    vision_tower = model.model.vision_tower[0]
+    vision_tower = model.get_vision_tower()
     if vision_tower.device.type == "meta":
         vision_tower = CLIPVisionModel.from_pretrained(
             vision_tower.config._name_or_path,
@@ -145,6 +145,7 @@ def load_pretrained_model(
     image_token_len = (vision_config.image_size // vision_config.patch_size) ** 2
     return model, tokenizer, image_processor, image_token_len
 
+#load_model is a simplified version of load_pretrained_model. The only difference is use_fast in tokenizer and use_cache=True in LlavaLlamaforcasual.
 def load_model(model_name):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = LlavaLlamaForCausalLM.from_pretrained(
@@ -155,7 +156,6 @@ def load_model(model_name):
     )
     vision_tower = model.model.vision_tower[0]
     vision_tower.to(device="cuda", dtype=torch.float16)
-
     mm_use_im_start_end = getattr(model.config, "mm_use_im_start_end", False)
     tokenizer.add_tokens([DEFAULT_IMAGE_PATCH_TOKEN], special_tokens=True)
     if mm_use_im_start_end:
