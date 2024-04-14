@@ -115,17 +115,8 @@ def load_pretrained_model(
         tokenizer.add_tokens(
             [DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN], special_tokens=True)
     vision_tower = model.get_vision_tower()
-    if vision_tower.device.type == "meta":
-        vision_tower = CLIPVisionModel.from_pretrained(
-            vision_tower.config._name_or_path,
-            torch_dtype=torch.bfloat16 if load_bf16 else torch.float16,
-            low_cpu_mem_usage=False,
-        ).cuda()
-        model.model.vision_tower[0] = vision_tower
-    else:
-        vision_tower.to(
-            device="cuda", dtype=torch.bfloat16 if load_bf16 else torch.float16
-        )
+
+    vision_tower.to(device="cuda", dtype=torch.bfloat16 if load_bf16 else torch.float16)
 
     vision_config = vision_tower.config
     vision_config.im_patch_token = tokenizer.convert_tokens_to_ids(
