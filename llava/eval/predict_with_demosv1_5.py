@@ -176,7 +176,7 @@ def eval_model(args):
     disable_torch_init()
     model_name = os.path.expanduser(args.model)
     patch_config(model_name)
-    tokenizer, model, image_processor, image_token_len = load_pretrained_model(model_name,load_4bit=args.load_4bit)
+    model,tokenizer,image_processor, image_token_len = load_pretrained_model(model_name,load_4bit=args.load_4bit)
 
     dataset = list(read_jsonl(args.dataset))
     demos = list(read_jsonl(args.demos))
